@@ -27,6 +27,8 @@ public class Loan {
     private String reason;
     @Column(nullable = false)
     private Double amount; // in TND
+    private Integer duration; // in months
+    private Double interestRate; // in %
 
     // Documents related information
     @Lob

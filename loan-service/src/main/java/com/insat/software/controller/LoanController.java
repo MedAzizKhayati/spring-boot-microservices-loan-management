@@ -30,6 +30,7 @@ public class LoanController {
     }
 
     public CompletableFuture<String> fallbackMethod(RuntimeException runtimeException){
+        runtimeException.printStackTrace();
         return CompletableFuture.supplyAsync(()-> "Oops! Something went wrong, please try again later!");
     }
 
