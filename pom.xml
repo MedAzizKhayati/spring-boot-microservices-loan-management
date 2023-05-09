@@ -21,6 +21,7 @@
         <module>notification-service</module>
         <module>loan-service</module>
         <module>ocr-service</module>
+        <module>trades-service</module>
     </modules>
 
     <properties>

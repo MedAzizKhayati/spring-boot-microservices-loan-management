@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "mongo.uri",
+      "type": "java.lang.String",
+      "description": "Description for mongo.uri."
+  }
+] }
