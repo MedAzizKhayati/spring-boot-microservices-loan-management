@@ -12,4 +12,5 @@ public class LoanRequestDto {
     private String lastName;
     private String reason;
     private String amount;
+    private String duration;
 }

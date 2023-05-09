@@ -1,5 +1,6 @@
 package com.insat.software.dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,4 +14,5 @@ public class LoanRequestDto {
     private String reason;
     private String amount;
     private String duration;
+    private Double commercialScore;
 }
