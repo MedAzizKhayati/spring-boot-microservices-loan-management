@@ -5,8 +5,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.kafka.annotation.KafkaListener;
 
-@SpringBootApplication
 @Slf4j
+@SpringBootApplication
 public class NotificationServiceApplication {
 
     public static void main(String[] args) {
@@ -15,7 +15,6 @@ public class NotificationServiceApplication {
 
     @KafkaListener(topics = "reviewed-loans")
     public void handleNotification(LoanReviewedEvent loanReviewedEvent) {
-        // send out notifications
         log.info(
                 "Received Notification for Loan Review #{} with a status of {}",
                 loanReviewedEvent.getId(),

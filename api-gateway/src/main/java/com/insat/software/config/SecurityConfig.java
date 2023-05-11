@@ -15,13 +15,12 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 public class SecurityConfig {
 
 
-
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity serverHttpSecurity) {
         serverHttpSecurity
                 .csrf().disable()
                 .authorizeExchange(exchange ->
-                        exchange.pathMatchers("/eureka/**", "/api/trades/**")
+                        exchange.pathMatchers("/eureka/**")
                                 .permitAll()
                                 .anyExchange()
                                 .authenticated())

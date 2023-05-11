@@ -30,13 +30,14 @@ public class LoanController {
     }
 
     public CompletableFuture<String> fallbackMethod(RuntimeException runtimeException){
+        runtimeException.printStackTrace();
         return CompletableFuture.supplyAsync(()-> "Oops! Something went wrong, please try again later!");
     }
 
 
     @GetMapping
     public List<Loan> getMyLoans(@RequestHeader("X-ClientId") String clientId) {
-        return loanService.findLoanByClientId(clientId);
+        return loanService.findAll();
     }
 
 }

@@ -3,7 +3,9 @@ package com.insat.software.service;
 import brave.Span;
 import brave.Tracer;
 
+import com.insat.software.dto.EligibilityResult;
 import com.insat.software.dto.LoanRequestDto;
+import com.insat.software.dto.LoanWithScoreDto;
 import com.insat.software.model.Loan;
 import com.insat.software.repository.LoanRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,13 +39,24 @@ public class LoanService {
         return response;
     }
 
+    public LoanRequestDto convertToLoanRequestDto(Loan loan) {
+        LoanRequestDto loanRequestDto = new LoanRequestDto();
+        loanRequestDto.setFirstName(loan.getClientFirstName());
+        loanRequestDto.setLastName(loan.getClientLastName());
+        loanRequestDto.setReason(loan.getReason());
+        loanRequestDto.setAmount(loan.getAmount());
+        loanRequestDto.setDuration(loan.getDuration());
+        return loanRequestDto;
+    }
+
 
     public Loan createLoanRequest(LoanRequestDto loanRequest) {
         Loan loan = Loan.builder()
                 .clientFirstName(loanRequest.getFirstName())
                 .clientLastName(loanRequest.getLastName())
                 .reason(loanRequest.getReason())
-                .amount(Double.valueOf(loanRequest.getAmount()))
+                .amount(loanRequest.getAmount())
+                .duration(loanRequest.getDuration())
                 .build();
 
         // Save image to AWS S3 bucket
@@ -57,23 +70,49 @@ public class LoanService {
                 "ocr-service"
         );
         loan.setData(response);
-
+        LoanRequestDto loanRequestDto = convertToLoanRequestDto(loan);
         // Call Commercial service
-
-        // Call Risk service
-
+        EligibilityResult commercialScore = tracedPost(
+                webClientBuilder.build().post()
+                        .uri("http://commercial-service/api/commercial/calculate")
+                        .body(Mono.just(loanRequestDto), LoanRequestDto.class)
+                        .retrieve()
+                        .bodyToMono(EligibilityResult.class),
+                "commercial-service"
+        );
+        loan.setCommercialScore(commercialScore.getCommercialScore());
+        boolean isEligible = commercialScore.isEligible();
+        // if the client is eligible, we call the risk service
+        if (isEligible) {
+            LoanWithScoreDto loanWithScoreDto = new LoanWithScoreDto(loanRequestDto.getFirstName(), loanRequestDto.getLastName(),
+                    loanRequest.getReason(), loanRequest.getAmount(), loanRequest.getDuration(), commercialScore.getCommercialScore());
+            // Call Risk service
+            Double riskScore = tracedPost(
+                    webClientBuilder.build().post()
+                            .uri("http://risk-management-service/api/risk-management/calculate")
+                            .body(Mono.just(loanWithScoreDto), LoanWithScoreDto.class)
+                            .retrieve()
+                            .bodyToMono(Double.class),
+                    "risk-management-service"
+            );
+            loan.setRiskScore(riskScore);
+            loan.setStatus(riskScore > 3000 ? Loan.Status.APPROVED : Loan.Status.REJECTED);
+            loan.setInterestRate(riskScore / 3000 * 10 + 2);
+        }
+        else{
+            loan.setRiskScore(0.0);
+            loan.setStatus(Loan.Status.REJECTED);
+        }
         // Save the loan after the review
         loanRepository.save(loan);
-
         // Send the loan request to a Kafka topic
         kafkaTemplate.send("reviewed-loans", loan);
 
         return loan;
     }
 
-
-    public List<Loan> findLoanByClientId(String clientId) {
-        return loanRepository.findByClientId(clientId);
+    public List<Loan> findAll() {
+        return loanRepository.findAll();
     }
 
 }
