@@ -27,4 +27,4 @@ This project is a sample microservice application developed using Spring Boot, S
 
 ## Backend Architecture
 
-![image](https://user-images.githubusercontent.com/68187294/235036506-7217d7eb-751a-4c95-a553-1b887d8acc00.png)
+![image](https://github.com/MedAzizKhayati/spring-boot-microservices-loan-management/assets/68187294/e7ecb113-78a3-4ec7-95e1-33c8b45346f5)
