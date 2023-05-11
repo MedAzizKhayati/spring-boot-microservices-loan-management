@@ -22,7 +22,7 @@ This project is a sample microservice application developed using Spring Boot, S
 3. Run `docker-compose up -d`.
 4. Run all microservices.
 5. Open Postman or any other similar software and use OAuth2
-6. Play around with http://localhost:3000
+6. Play around with http://localhost:3001
 
 ## Backend Architecture
 
